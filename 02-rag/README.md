@@ -5,7 +5,7 @@
 > **不包含**：
 > - 通用 Eval（→ 第 6 章），但 RAG 特有的评估指标（RAGAS 四件套、Recall@K 等）会在 2.10 工程化或对应小节附带提及
 > - 通用 Prompt 注入与越狱防护（→ 第 8 章），本章只在 2.10 给 **RAG 特有安全**（数据投毒 / 间接注入）一个锚点并交叉引用
-> - Embedding 模型训练（算法工程师范畴）—— 本章只讲**选型与使用**
+> - Embedding 模型训练（算法工程师范畴）—— 本章正文只讲**选型与使用**；训练原理另设**深入选读** [`2.3.1-embedding-model-training.md`](./2.3.1-embedding-model-training.md)，应用工程师按需读
 >
 > **一条贯穿全章的认知**：2026 年 RAG 失败点约 **73% 在检索、而非生成**——"检索是瓶颈"，本章 2.2–2.6 的篇幅权重据此倾斜。
 
@@ -18,6 +18,7 @@
 | **2.1** | RAG 基础与决策框架 | RAG 是什么？何时用（vs 长上下文 / 微调）？整体架构？ | [`2.1-rag-fundamentals.md`](./2.1-rag-fundamentals.md) |
 | **2.2** | 文档处理与切片 | 怎么把原始资料变成可检索单元？ | [`2.2-document-processing.md`](./2.2-document-processing.md) |
 | **2.3** | 向量化与向量数据库 | 怎么存、用什么存（单向量 vs 多向量）？ | [`2.3-vectorization.md`](./2.3-vectorization.md) |
+| ↳ 2.3.1 | Embedding 模型怎么训练（深入选读） | 在 LLM 基础上改了什么？主流训练管线？ | [`2.3.1-embedding-model-training.md`](./2.3.1-embedding-model-training.md) |
 | **2.4** | 检索策略 | 怎么取出最相关的内容？ | [`2.4-retrieval.md`](./2.4-retrieval.md) |
 | **2.5** | 查询理解与改写 | 怎么让用户的问题更适合被检索？ | [`2.5-query-understanding.md`](./2.5-query-understanding.md) |
 | **2.6** | 重排（Reranking） | 怎么把检索结果按相关性精排？ | [`2.6-reranking.md`](./2.6-reranking.md) |
@@ -46,6 +47,7 @@
 - **关键问题**：Embedding 模型选型（OpenAI / Cohere / BGE / Voyage / 中文模型）、维度与成本权衡、向量库对比（Pinecone / Qdrant / Milvus / Weaviate / pgvector / Chroma）、元数据过滤、多租户与权限
 - **目标**：能为业务量级、预算、部署形态选对向量库与 Embedding 模型
 - **补充**：**单向量 vs 多向量（Multi-vector）表征**——ColBERT 式 per-token 向量与 Late Interaction 的存储/索引代价（含 PLAID、MUVERA 等压缩手段），为 2.4 的 late-interaction 检索打基础
+- **深入选读 2.3.1**：Embedding 模型的训练原理——在 LLM 基础上做的改造（池化 / 双向化 / 指令）、对比学习与 InfoNCE、多阶段训练管线、hard negative 挖掘、LLM-based 现代范式（E5-mistral / LLM2Vec / NV-Embed）。算法向，应用工程师按需
 
 ### 2.4 检索策略
 - **关键问题**：稠密检索（Dense / Vector）、稀疏检索（BM25 / SPLADE）、**混合检索**（Hybrid，含 RRF 融合）、元数据过滤、Top-K 与召回率权衡
