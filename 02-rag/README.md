@@ -1,7 +1,7 @@
 # 第 2 章 · RAG（检索增强生成）
 
 > **定位**：让模型用上私有/外部知识，是除 Agent 外最重要的应用模式。
-> **范围**：从文档处理到检索、重排、生成、再到高级 RAG 架构与多模态 RAG。
+> **范围**：从文档处理到检索、重排、生成、再到 Modular/Agentic RAG 架构与多模态 RAG。
 > **不包含**：
 > - 通用 Eval（→ 第 6 章），但 RAG 特有的评估指标（RAGAS 四件套、Recall@K 等）会在 2.10 工程化或对应小节附带提及
 > - 通用 Prompt 注入与越狱防护（→ 第 8 章），本章只在 2.10 给 **RAG 特有安全**（数据投毒 / 间接注入）一个锚点并交叉引用
@@ -20,10 +20,11 @@
 | **2.3** | 向量化与向量数据库 | 怎么存、用什么存（单向量 vs 多向量）？ | [`2.3-vectorization.md`](./2.3-vectorization.md) |
 | ↳ 2.3.1 | Embedding 模型怎么训练（深入选读） | 在 LLM 基础上改了什么？主流训练管线？ | [`2.3.1-embedding-model-training.md`](./2.3.1-embedding-model-training.md) |
 | **2.4** | 检索策略 | 怎么取出最相关的内容？ | [`2.4-retrieval.md`](./2.4-retrieval.md) |
+| ↳ 2.4.1 | ANN 找最近邻（补充） | 向量库怎么在毫秒内找最近邻？HNSW/IVF/PQ 怎么调？ | [`2.4.1-ann-nearest-neighbor.md`](./2.4.1-ann-nearest-neighbor.md) |
 | **2.5** | 查询理解与改写 | 怎么让用户的问题更适合被检索？ | [`2.5-query-understanding.md`](./2.5-query-understanding.md) |
 | **2.6** | 重排（Reranking） | 怎么把检索结果按相关性精排？ | [`2.6-reranking.md`](./2.6-reranking.md) |
 | **2.7** | 上下文组装与生成 | 怎么把检索结果给到模型？ | [`2.7-context-generation.md`](./2.7-context-generation.md) |
-| **2.8** | 高级 RAG 架构 | Self-RAG / CRAG / RAPTOR / GraphRAG / Adaptive / Agentic RAG | [`2.8-advanced-rag.md`](./2.8-advanced-rag.md) |
+| **2.8** | Modular / Agentic RAG 架构 | Self-RAG / CRAG / RAPTOR / GraphRAG / Adaptive / Agentic RAG | [`2.8-modular-agentic-rag.md`](./2.8-modular-agentic-rag.md) |
 | **2.9** | 多模态 RAG / 文档智能 | 表格、图表、复杂 PDF、视觉优先检索（ColPali） | [`2.9-multimodal-rag.md`](./2.9-multimodal-rag.md) |
 | **2.10** | RAG 工程化 | 增量更新、评估、监控、A/B、安全、上线运维 | [`2.10-rag-engineering.md`](./2.10-rag-engineering.md) |
 
@@ -54,6 +55,7 @@
 - **目标**：能搭出符合业务召回质量要求的检索层
 - **补充**：
   - **Late Interaction 检索（ColBERT / MaxSim）**——接近 cross-encoder 精度、接近 bi-encoder 速度，介于稠密检索与重排之间的第三条路
+  - **深入选读 2.4.1**：ANN 近似最近邻——为什么要近似、三大思路（图/聚类/哈希）+ 量化压缩、**HNSW**（M/efConstruction/efSearch）、**IVF**（nlist/nprobe）、**PQ / IVF-PQ**、距离度量、filtered ANN 过滤坑、选型速查。建索引与调优时用得上
   - **结构化数据 RAG / Text-to-SQL**——精确数值、聚合、过滤类查询走 NL→SQL 直连结构化库，而非文本相似度
 
 ### 2.5 查询理解与改写
@@ -69,10 +71,11 @@
 - **关键问题**：Context 拼装顺序、Prompt 模板（如何把检索结果塞进 prompt）、**引用与溯源**（Citations / Source attribution）、幻觉抑制、**Lost-in-the-middle** 应对（重要内容放头尾）
 - **目标**：能让模型的输出既"用得上检索结果"又"能被审计追溯"
 
-### 2.8 高级 RAG 架构
+### 2.8 Modular / Agentic RAG 架构
 - **关键问题**：**Self-RAG**（自我反思）、**CRAG**（Corrective RAG，纠错）、**RAPTOR**（递归聚类+摘要建树，多粒度检索）、**GraphRAG**（Microsoft 知识图谱 RAG）、**Adaptive RAG**（查询复杂度路由，2026 主流最佳实践）、**Agentic RAG**（Agent 驱动的 RAG）、**Long RAG**（大块 + 长上下文模型）
 - **目标**：能识别这些架构的适用场景，知道工程代价
 - **组织方式**：按"反思纠错（Self-RAG/CRAG）→ 结构化组织（RAPTOR/GraphRAG）→ 路由调度（Adaptive/Agentic）"三条主线归类，避免罗列
+- **术语边界**：本节是三范式里的**范式③ Modular/Agentic**。范式②的 **"Advanced RAG"（查询改写+混合检索+重排等增强手段）已拆在 2.4–2.7**，两者别混（详见 2.1 第三节的术语澄清）
 
 ### 2.9 多模态 RAG / 文档智能
 - **关键问题**：表格 RAG（结构化提取 + 检索）、图表理解（Chart / Diagram VQA）、复杂 PDF（多栏 / 公式 / 嵌入图）、多模态向量化（CLIP / 多模态 Embedding）、混合存储策略
